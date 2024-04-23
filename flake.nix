@@ -43,7 +43,11 @@
           black
           coverage
         ];
-      dev-pkgs = p: with p; [ python-lsp-server ];
+      dev-pkgs =
+        p: with p; [
+          matplotlib
+          python-lsp-server
+        ];
       lookup-pkg-sets = ps: p: builtins.concatMap (f: f p) ps;
     in
     {
