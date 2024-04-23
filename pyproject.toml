@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "jax_attn"
 version = "0.0.1"
-description = "Extremely simple, fast, type- and shape-checked attention for neural networks, all in pure JAX."
+description = "Clear, concise, & efficient implementation of attention for neural networks in pure JAX."
 authors = [
   "Will Sturgeon <willstrgn@gmail.com>",
 ]

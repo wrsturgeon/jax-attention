@@ -1,5 +1,5 @@
 {
-  description = "Extremely simple, fast, type-checked attention for neural networks, all in pure JAX.";
+  description = "Clear, concise, & efficient implementation of attention for neural networks in pure JAX.";
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";

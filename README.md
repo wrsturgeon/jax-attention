@@ -11,7 +11,7 @@ The idea is that you can read this repo and intuit the entire algorithm, from st
 
 ## Why?
 
-The original attention algorithm is, famously, deceptively simple.
+The original attention algorithm is, famously, deceptively simple:
 
 ```math
 \text{Attention}(Q, K, V) = \text{softmax} \left( \frac{ Q K^\top }{ \sqrt{ d_k } } \right) V
@@ -22,18 +22,22 @@ For example, off the top of your head,
 - Which axis is $`d_k`$ again?
 - Do we `softmax` over the whole matrix, over rows, or over columns?
 
-None of these are clear from either the original paper or online search results (trust me, we've all tried).
+None of these are clear from either the original paper or online search results (trust me: we've all tried).
 
 The best introduction by far is [3blue1brown's video](https://youtu.be/eMlx5fFNoYc?si=JUKzND7b0uQ00EaK),
 but _**note**_ that the video uses _columns_ throughout where the original paper would use _rows_:
-it's really illustrating $`V \text{softmax} \left( K^\top Q \right)`$
+it's really illustrating something closer to $`V \text{softmax} \left( K^\top Q \right)`$,
+where matrix transformations are usually to the left of inputs ($`W x`$),
+whereas in the original paper they're usually to the right ($`x W`$).
 
 Currently, there seem to be no clear and easily accessible implementations that cover all the details.
-This repo aims to fill that gap.
+This project aims to fill that gap.
 
 ## Use
 
-If you're using normal Python packaging, all you need is [JAX](https://github.com/google/jax).
+If you're using standard Python build systems, all you need is [JAX](https://github.com/google/jax).
+For now, this project uses [Poetry](https://github.com/python-poetry/poetry) to specify dependencies.
+If there's demand for a `pip`/PyPI package, that's doable as well.
 
 If you use Nix, there's a flake that works with all Python versions;
 all you need to do is hand it the package set you're using.
