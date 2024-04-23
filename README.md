@@ -15,6 +15,9 @@ The original attention algorithm is, famously, deceptively simple:
 
 ```math
 \text{Attention}(Q, K, V) = \text{softmax} \left( \frac{ Q K^\top }{ \sqrt{ d_k } } \right) V
+
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, ..., \text{head}_h) W^O
+\text{where head}_i = \text{Attention}(Q W_i^Q, K W_i^K, V W_i^V)
 ```
 
 For example, off the top of your head,
