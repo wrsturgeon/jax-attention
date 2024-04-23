@@ -11,7 +11,7 @@ The idea is that you can read this repo and intuit the entire algorithm, from st
 
 ## Why?
 
-The original attention algorithm is, famously, deceptively simple:
+The original attention algorithm is deceptively simple:
 
 ```math
 \text{Attention}(Q, K, V) = \text{softmax} \left( \frac{ Q K^\top }{ \sqrt{ d_k } } \right) V
