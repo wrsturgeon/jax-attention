@@ -31,11 +31,12 @@ def check_shapes(p: Parameters):
     assert p.output.shape == (hd, d_v, embedding), f"{p.output.shape} =/= {(hd, d_v, embedding)}"
 
 
-@check_and_compile(2)
+@check_and_compile(2, 3)
 def run(
     params: Parameters,
     tokens: Float32[Array, "*batch seq embedding"],
     causal_mask: bool,
+    activation: Callable = lambda x: jnn.softmax(x, axis=-1),
 ) -> Float32[Array, "*batch seq embedding"]:
     """
     A full attention block, batteries included.
@@ -56,7 +57,9 @@ def run(
     #   )
 
     # For each token, compute a salience map based on its queries and other tokens' keys:
-    salience: Float32[Array, "*batch head seq seq"] = salience_map.salience_map(q, k, causal_mask)
+    salience: Float32[Array, "*batch head seq seq"] = salience_map.salience_map(
+        q, k, causal_mask, activation=activation
+    )
 
     # Weight our update values by their salience to each token:
     attn: Float32[Array, "*batch head seq d_v"] = attention.attention(salience, v)

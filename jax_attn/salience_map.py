@@ -1,15 +1,17 @@
 from jax_attn.mask import mask
 
+from beartype.typing import Callable
 from check_and_compile import check_and_compile
 from jax import nn as jnn, numpy as jnp
 from jaxtyping import Array, Bool, Float32
 
 
-@check_and_compile(2)
+@check_and_compile(2, 3)
 def salience_map(
     q: Float32[Array, "*batch head seq d_k"],
     k: Float32[Array, "*batch head seq d_k"],
     causal_mask: bool,
+    activation: Callable = lambda x: jnn.softmax(x, axis=-1),
 ) -> Float32[Array, "*batch head seq seq"]:
     """
     Given queries and keys, compute which tokens pay attention to which others (or themselves).
@@ -32,4 +34,4 @@ def salience_map(
     )
 
     # Convert rows into probability distributions:
-    return jnn.softmax(logits)
+    return activation(logits)
