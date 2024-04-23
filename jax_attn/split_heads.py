@@ -1,6 +1,6 @@
 from jax_attn.jit import jit
 
-from beartype.typing import NamedTuple, Tuple
+from beartype.typing import NamedTuple, Optional, Tuple
 from jax import nn as jnn, numpy as jnp, random as jrnd
 from jaxtyping import Array, Float32, Float64
 
@@ -20,27 +20,18 @@ def init(key: Array, heads: int, d_model: int, d_k: int, d_v: int) -> Parameters
     )
 
 
-def check_shape(p: Parameters, d_model: int):
+def check_shapes(p: Parameters, d_model: int) -> Tuple[int, int, int]:
     assert p.w_q.ndim == 3, f"{p.w_q.ndim} =/= {3}"
     assert p.w_k.ndim == 3, f"{p.w_k.ndim} =/= {3}"
     assert p.w_v.ndim == 3, f"{p.w_v.ndim} =/= {3}"
+
     heads, _, d_k = p.w_k.shape
-    d_v = p.w_v.shape[-1]
-    assert p.w_q.shape == (
-        heads,
-        d_model,
-        d_k,
-    ), f"{p.w_q.shape} =/= {(heads, d_model, d_k)}"
-    assert p.w_k.shape == (
-        heads,
-        d_model,
-        d_k,
-    ), f"{p.w_k.shape} =/= {(heads, d_model, d_k)}"
-    assert p.w_v.shape == (
-        heads,
-        d_model,
-        d_v,
-    ), f"{p.w_v.shape} =/= {(heads, d_model, d_v)}"
+    _, _, d_v = p.w_v.shape
+    assert p.w_q.shape == (heads, d_model, d_k), f"{p.w_q.shape} =/= {(heads, d_model, d_k)}"
+    assert p.w_k.shape == (heads, d_model, d_k), f"{p.w_k.shape} =/= {(heads, d_model, d_k)}"
+    assert p.w_v.shape == (heads, d_model, d_v), f"{p.w_v.shape} =/= {(heads, d_model, d_v)}"
+
+    return heads, d_k, d_v
 
 
 @jit()
@@ -57,7 +48,7 @@ def split_heads(
     """
 
     # Check parameter shapes:
-    check_shape(params, qkv.shape[-1])
+    check_shapes(params, qkv.shape[-1])
 
     # Split `qkv` into Q, K, and V matrices:
     q, k, v = qkv  # : Float32[Array, "*batch seq d_model"]

@@ -19,7 +19,7 @@ def mask(shape: Tuple) -> Bool[Array, "... n n"]:
     [ 0 0 0 1 1 ... ]
     [ 0 0 0 0 1 ... ]
     [ 0 0 0 0 0 ... ]
-    [ : : : : : ... ]
+    [ : : : : : ::: ]
     ```
     where 1 means "mask" and 0 means "pass through."
     """

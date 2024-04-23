@@ -87,7 +87,6 @@
               set -eu
 
               export JAX_ENABLE_X64=1
-              # export NONJIT=1
 
               ${python} -m black --check .
               ${python} -m mypy .

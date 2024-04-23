@@ -2,7 +2,7 @@ from jax_attn.jit import jit
 from jax_attn.mask import mask
 
 from jax import nn as jnn, numpy as jnp
-from jaxtyping import Array, Float32
+from jaxtyping import Array, Bool, Float32
 
 
 @jit(2)
@@ -14,22 +14,22 @@ def salience_map(
     """
     Given queries and keys, compute which tokens pay attention to which others (or themselves).
 
-    This is the (Q K^T / sqrt(d_k)) part of the famous equation.
+    This is the `softmax(Q K^T / sqrt(d_k))` part of the famous equation.
     """
 
-    # Take the dot product of each token's queries with each token's keys:
-    qkT: Float32[Array, "*batch seq seq"] = q @ k.transpose(0, 1, 3, 2)
+    # Transpose keys so we can matrix-multiply with queries:
+    kT: Float32[Array, "*batch head d_k seq"] = jnp.einsum("... s d -> ... d s", k)
 
-    # Divide this by the square root of the number of queries for numerical stability:
-    normalized = qkT * jnp.power(q.shape[-1], -0.5)
+    # Take the dot products of each token's queries with every token's keys:
+    qkT: Float32[Array, "*batch head seq seq"] = q @ kT
+
+    # Divide this by the square root of the number of queries (for numerical stability):
+    unmasked: Float32[Array, "*batch head seq seq"] = qkT * jnp.power(q.shape[-1], -0.5)
 
     # If we want a causal mask, add it:
-    m = mask(normalized.shape)
-    assert m.ndim == normalized.ndim, f"{m.ndim} =/= {normalized.ndim}"
-    assert m.shape[-2:] == normalized.shape[-2:], f"{m.shape[-2:]} =/= {normalized.shape[-2:]}"
-    masked = jnp.where(m, -jnp.inf, normalized) if causal_mask else normalized
+    logits: Float32[Array, "*batch head seq seq"] = (
+        jnp.where(mask(unmasked.shape), -jnp.inf, unmasked) if causal_mask else unmasked
+    )
 
-    # Convert the above into probability distributions over rows:
-    probabilities = jnn.softmax(masked)
-
-    return probabilities
+    # Convert rows into probability distributions:
+    return jnn.softmax(logits)
