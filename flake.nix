@@ -75,8 +75,6 @@
         packages.ci =
           let
             pname = "ci";
-            version = "none";
-            src = ./.;
             python = python-with [
               default-pkgs
               check-pkgs
