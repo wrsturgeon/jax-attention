@@ -28,9 +28,7 @@ else:  # pragma: no cover
                     jaxtyped(f, typechecker=beartype),
                     errors=all_checks,
                 )(*args, **kwargs)
-                print(
-                    f"Compiling {getattr(f, '__qualname__', 'an unnamed function')}..."
-                )
+                print(f"Compiling {getattr(f, '__qualname__', 'an unnamed function')}...")
                 return y
 
             def handle_err(*args, **kwargs):

@@ -17,6 +17,9 @@ python = ">=3.9,<4"
 [tool.poetry.extras]
 test = ["pytest"]
 
+[tool.black]
+line-length = 65535
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

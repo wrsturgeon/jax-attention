@@ -11,6 +11,26 @@ class Parameters(NamedTuple):
     w_v: Float64[Array, "d_model d_v"]
 
 
+def check_shape(p: Parameters, d_model: int):
+    assert p.w_q.ndim == 2, f"{p.w_q.ndim} =/= {2}"
+    assert p.w_k.ndim == 2, f"{p.w_k.ndim} =/= {2}"
+    assert p.w_v.ndim == 2, f"{p.w_v.ndim} =/= {2}"
+    d_k = p.w_k.shape[1]
+    d_v = p.w_v.shape[1]
+    assert p.w_q.shape == (
+        d_model,
+        d_k,
+    ), f"{p.w_q.shape} =/= {(d_model, d_k)}"
+    assert p.w_k.shape == (
+        d_model,
+        d_k,
+    ), f"{p.w_k.shape} =/= {(d_model, d_k)}"
+    assert p.w_v.shape == (
+        d_model,
+        d_v,
+    ), f"{p.w_v.shape} =/= {(d_model, d_v)}"
+
+
 @jit()
 def split_heads(
     params: Parameters,
@@ -23,6 +43,9 @@ def split_heads(
     """
     Project Q/K/V matrices into inputs for separate "heads" paying attention to different things.
     """
+
+    # Check parameter shapes:
+    check_shape(params, qkv.shape[-1])
 
     # Split `qkv` into Q, K, and V matrices:
     q, k, v = qkv
