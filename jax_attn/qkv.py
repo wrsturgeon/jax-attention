@@ -1,6 +1,5 @@
 from jax_attn.jit import jit
 
-from beartype.typing import NamedTuple
 from jax import numpy as jnp
 from jaxtyping import Array, Float32, Float64
 
@@ -16,10 +15,6 @@ def qkv(
     - K, for "key"
     - V, for "values"
     """
-
-    batch, seq, embedding = tokens.shape
-    d_model = params.shape[-1]
-    assert params.shape == (3, embedding, d_model)
 
     # Change `dtype` of `params` when we don't need precision updates:
     params: Float64[Array, "3 embedding d_model"] = params.astype(jnp.float32)
