@@ -32,19 +32,14 @@
         ]
         ++ [
           (check-and-compile.lib.with-pkgs p py)
-          (
-            let
-              shit = jax.overridePythonAttrs (
-                old:
-                old
-                // {
-                  doCheck = false;
-                  propagatedBuildInputs = old.propagatedBuildInputs ++ [ py.jaxlib-bin ];
-                }
-              );
-            in
-            builtins.trace "${shit}" shit
-          )
+          (jax.overridePythonAttrs (
+            old:
+            old
+            // {
+              doCheck = false;
+              propagatedBuildInputs = old.propagatedBuildInputs ++ [ py.jaxlib-bin ];
+            }
+          ))
         ];
       check-pkgs =
         p: py: with py; [
