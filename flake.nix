@@ -69,12 +69,6 @@
     {
       lib.with-pkgs =
         pkgs: pypkgs:
-        # pypkgs.buildPythonPackage {
-        #   inherit pname version src;
-        #   pyproject = true;
-        #   build-system = with pypkgs; [ poetry-core ];
-        #   dependencies = lookup-pkg-sets [ default-pkgs ] pypkgs;
-        # };
         pkgs.stdenv.mkDerivation {
           inherit pname version src;
           propagatedBuildInputs = lookup-pkg-sets [ default-pkgs ] pkgs pypkgs;
@@ -137,9 +131,7 @@
               ci-pkgs
               dev-pkgs
             ] pkgs pypkgs
-          )
-          # ++ (with pkgs; [ poetry ])
-          ;
+          );
         };
       }
     );

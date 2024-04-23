@@ -43,16 +43,11 @@ This project aims to fill that gap.
 
 ## Use
 
-If you're using standard Python build systems, all you need is [JAX](https://github.com/google/jax).
-For now, this project uses [Poetry](https://github.com/python-poetry/poetry) to specify dependencies.
-If there's demand for a `pip`/PyPI package, that's doable as well.
+This package uses [Nix](https://github.com/nixos/nix) for fully reproducible builds.
 
-If you use Nix, there's a flake that works with all Python versions;
-all you need to do is hand it the package set you're using.
-Note that, since it works with all Python versions, there is no `packages.${system}.default` attribute;
-instead, there's `lib.with-pkgs`, which takes package sets as arguments.
+It works with all versions of Python, so instead of providing `packages.${system}.default`,
+it provides `lib.with-pkgs`, which you can use like this:
 
-For example, here's a simple `flake.nix`:
 ```nix
 {
   inputs = {
