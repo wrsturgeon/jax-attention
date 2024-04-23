@@ -58,7 +58,7 @@ def run(
 
     # For each token, compute a salience map based on its queries and other tokens' keys:
     salience: Float32[Array, "*batch head seq seq"] = salience_map.salience_map(
-        q, k, causal_mask, activation=activation
+        q, k, causal_mask, activation
     )
 
     # Weight our update values by their salience to each token:
