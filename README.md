@@ -6,7 +6,7 @@ This repo does not aim to capture all possible variants of attention;
 many libraries already do this very well!
 
 Instead, this aims to be a clear, concise, and effecient implementation of the original
-attention algorithm from _Attention Is All You Need_, with extensive type annotations.
+multi-head attention algorithm from _Attention Is All You Need_, with extensive type annotations.
 The idea is that you can read this repo and intuit the entire algorithm, from start to finish.
 
 ## Why?
