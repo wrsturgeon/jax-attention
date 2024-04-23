@@ -2,7 +2,7 @@ from jax_attn.jit import jit
 
 from beartype.typing import Tuple
 from jax import numpy as jnp
-from jaxtyping import Array, Bool
+from jaxtyping import Array, Bool, Int
 
 
 @jit(0)

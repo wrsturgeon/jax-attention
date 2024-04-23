@@ -1,7 +1,11 @@
 from jax_attn.jit import jit
 
-from jax import numpy as jnp
+from jax import nn as jnn, numpy as jnp, random as jrnd
 from jaxtyping import Array, Float32, Float64
+
+
+def init(key: Array, embedding: int, d_model: int) -> Float64[Array, "3 embedding d_model"]:
+    return jnn.initializers.he_normal()(key, [3, embedding, d_model], dtype=jnp.float64)
 
 
 @jit()
@@ -16,16 +20,7 @@ def qkv(
     - V, for "values"
     """
 
-    # Change `dtype` of `params` when we don't need precision updates:
-    params: Float64[Array, "3 embedding d_model"] = params.astype(jnp.float32)
-
-    # Matrix-multiply *only* the last two axes:
-    # - `s` is `seq`
-    # - `e` is `embedding`
-    # - `m` is `d_model`
-    out = jnp.einsum("... s e, 3 e m -> 3 ... s m", tokens, params)
-
-    # Equivalently, we could have done this:
+    # Effectively, we're doing a faster version of this:
     #
     # WQ, WK, WV = params
     #
@@ -35,4 +30,11 @@ def qkv(
     #
     # return jnp.stack(Q, K, V)
 
-    return out
+    # Change `dtype` of `params` when we don't need precision updates:
+    p: Float64[Array, "3 embedding d_model"] = params.astype(jnp.float32)
+
+    # Matrix-multiply *only* the last two axes:
+    # - `s` is `seq`
+    # - `e` is `embedding`
+    # - `m` is `d_model`
+    return jnp.einsum("... s e, 3 e m -> 3 ... s m", tokens, p)

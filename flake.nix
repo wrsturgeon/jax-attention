@@ -35,6 +35,7 @@
       check-pkgs =
         p: with p; [
           hypothesis
+          mypy
           pytest
         ];
       ci-pkgs =
@@ -89,6 +90,7 @@
               # export NONJIT=1
 
               ${python} -m black --check .
+              ${python} -m mypy .
 
               ${python} -m coverage run --omit='/nix/*' -m pytest -Werror test.py
               ${python} -m coverage report -m --fail-under=100

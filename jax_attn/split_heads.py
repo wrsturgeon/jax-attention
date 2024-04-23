@@ -1,7 +1,7 @@
 from jax_attn.jit import jit
 
 from beartype.typing import NamedTuple, Tuple
-from jax import numpy as jnp
+from jax import nn as jnn, numpy as jnp, random as jrnd
 from jaxtyping import Array, Float32, Float64
 
 
@@ -9,6 +9,15 @@ class Parameters(NamedTuple):
     w_q: Float64[Array, "head d_model d_k"]
     w_k: Float64[Array, "head d_model d_k"]
     w_v: Float64[Array, "head d_model d_v"]
+
+
+def init(key: Array, heads: int, d_model: int, d_k: int, d_v: int) -> Parameters:
+    k_q, k_k, k_v = jrnd.split(key, num=3)
+    return Parameters(
+        w_q=jnn.initializers.he_normal()(k_q, [heads, d_model, d_k], dtype=jnp.float64),
+        w_k=jnn.initializers.he_normal()(k_k, [heads, d_model, d_k], dtype=jnp.float64),
+        w_v=jnn.initializers.he_normal()(k_v, [heads, d_model, d_v], dtype=jnp.float64),
+    )
 
 
 def check_shape(p: Parameters, d_model: int):
@@ -58,8 +67,8 @@ def split_heads(
     w_v: Float32[Array, "head d_model d_v"] = params.w_v.astype(jnp.float32)
 
     # Matrix-multiply each separately, since they have different shapes:
-    q: Float32[Array, "*batch head seq d_k"] = jnp.einsum("... s m, h m d -> ... h s d", q, w_q)
-    k: Float32[Array, "*batch head seq d_k"] = jnp.einsum("... s m, h m d -> ... h s d", k, w_k)
-    v: Float32[Array, "*batch head seq d_v"] = jnp.einsum("... s m, h m d -> ... h s d", v, w_v)
+    q_h: Float32[Array, "*batch head seq d_k"] = jnp.einsum("... s m, h m d -> ... h s d", q, w_q)
+    k_h: Float32[Array, "*batch head seq d_k"] = jnp.einsum("... s m, h m d -> ... h s d", k, w_k)
+    v_h: Float32[Array, "*batch head seq d_v"] = jnp.einsum("... s m, h m d -> ... h s d", v, w_v)
 
-    return q, k, v
+    return q_h, k_h, v_h
