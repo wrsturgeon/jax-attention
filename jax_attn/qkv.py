@@ -7,8 +7,8 @@ from jaxtyping import Array, Float32, Float64
 @jit()
 def qkv(
     params: Float64[Array, "3 embedding d_model"],
-    tokens: Float32[Array, "batch seq embedding"],
-) -> Float32[Array, "3 batch seq d_model"]:
+    tokens: Float32[Array, "*batch seq embedding"],
+) -> Float32[Array, "3 *batch seq d_model"]:
     """
     Learn to project a series of token embeddings into three matrices:
     - Q, for "query"
@@ -19,12 +19,11 @@ def qkv(
     # Change `dtype` of `params` when we don't need precision updates:
     params: Float64[Array, "3 embedding d_model"] = params.astype(jnp.float32)
 
-    # Update shapes so we can matrix-multiply *only* the last two axes:
-    tokens: Float32[Array, "1 batch seq embedding"] = tokens[jnp.newaxis]
-    params: Float32[Array, "3 1 embedding d_model"] = params[:, jnp.newaxis]
-
-    # Matrix-multiply the last two axes, leaving the others (3 & batch) intact:
-    all_at_once: Float32[Array, "3 batch seq d_model"] = tokens @ params
+    # Matrix-multiply *only* the last two axes:
+    # - `s` is `seq`
+    # - `e` is `embedding`
+    # - `m` is `d_model`
+    out = jnp.einsum("... s e, 3 e m -> 3 ... s m", tokens, params)
 
     # Equivalently, we could have done this:
     #
@@ -36,4 +35,4 @@ def qkv(
     #
     # return jnp.stack(Q, K, V)
 
-    return all_at_once
+    return out

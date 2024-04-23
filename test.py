@@ -5,7 +5,7 @@ from jax import numpy as jnp
 
 def test_mask():
     assert jnp.all(
-        mask.mask(5)
+        mask.mask((42, 37, 5, 5))
         == jnp.array(
             [
                 [
