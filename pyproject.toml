@@ -18,7 +18,7 @@ python = ">=3.9,<4"
 test = ["pytest"]
 
 [tool.black]
-line-length = 65535
+line-length = 100
 
 [build-system]
 requires = ["poetry-core"]
