@@ -26,9 +26,11 @@ None of these are clear from either the original paper or online search results 
 
 The best introduction by far is [3blue1brown's video](https://youtu.be/eMlx5fFNoYc?si=JUKzND7b0uQ00EaK),
 but _**note**_ that the video uses _columns_ throughout where the original paper would use _rows_:
-it's really illustrating something closer to $`V \text{softmax} \left( K^\top Q \right)`$,
+it's really illustrating $`V \text{softmax} \left( K^\top Q \right)`$,
 where matrix transformations are usually to the left of inputs ($`W x`$),
 whereas in the original paper they're usually to the right ($`x W`$).
+These formulations are identically powerful;
+you'd just need to transpose some matrices to get identical outputs.
 
 Currently, there seem to be no clear and easily accessible implementations that cover all the details.
 This project aims to fill that gap.
