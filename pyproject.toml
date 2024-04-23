@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "jax_attn"
+version = "0.0.1"
+description = "Extremely simple, fast, type- and shape-checked attention for neural networks, all in pure JAX."
+authors = [
+  "Will Sturgeon <willstrgn@gmail.com>",
+]
+
+[tool.poetry.dependencies]
+beartype = ">=0"
+jax = ">=0"
+jaxlib = ">=0"
+jaxtyping = ">=0"
+pytest = {version = ">=0", optional = true}
+python = ">=3.9,<4"
+
+[tool.poetry.extras]
+test = ["pytest"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
