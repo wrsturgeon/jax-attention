@@ -1,7 +1,7 @@
 from jax_attn import attention, project_output, qkv, salience_map, split_heads
 
 from check_and_compile import check_and_compile
-from beartype.typing import NamedTuple
+from beartype.typing import Callable, NamedTuple
 from jax import nn as jnn, numpy as jnp, random as jrnd
 from jaxtyping import Array, Float32, Float64
 
