@@ -84,3 +84,5 @@ Do whatever you want with it, but
 if you learned something, and/or
 if this made your life easier,
 please give a shoutout!
+
+Note that there is, legally, absolutely no guarantee that this works the way you want it to, but of course I hope it does.
