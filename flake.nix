@@ -102,7 +102,7 @@
 
               export JAX_ENABLE_X64=1
 
-              ${python} -m black --check .
+              ${python} -m black --line-length=100 --check .
               ${python} -m mypy .
 
               ${python} -m coverage run --omit='/nix/*' -m pytest -Werror test.py
