@@ -1,11 +1,19 @@
 {
   description = "Clear, concise, & efficient implementation of attention for neural networks in pure JAX.";
   inputs = {
+    check-and-compile = {
+      inputs = {
+        flake-utils.follows = "flake-utils";
+        nixpkgs.follows = "nixpkgs";
+      };
+      url = "github:wrsturgeon/check-and-compile";
+    };
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
   outputs =
     {
+      check-and-compile,
       flake-utils,
       nixpkgs,
       self,
@@ -16,39 +24,47 @@
       version = "0.0.1";
       src = ./.;
       default-pkgs =
-        p:
-        with p;
+        p: py:
+        with py;
         [
           beartype
           jaxtyping
         ]
         ++ [
-          (jax.overridePythonAttrs (
-            old:
-            old
-            // {
-              doCheck = false;
-              propagatedBuildInputs = old.propagatedBuildInputs ++ [ p.jaxlib-bin ];
-            }
-          ))
+          (check-and-compile.lib.with-pkgs p py)
+          (
+            let
+              shit = jax.overridePythonAttrs (
+                old:
+                old
+                // {
+                  doCheck = false;
+                  propagatedBuildInputs = old.propagatedBuildInputs ++ [ py.jaxlib-bin ];
+                }
+              );
+            in
+            builtins.trace "${shit}" shit
+          )
         ];
       check-pkgs =
-        p: with p; [
+        p: py: with py; [
           hypothesis
           mypy
           pytest
         ];
       ci-pkgs =
-        p: with p; [
+        p: py: with py; [
           black
           coverage
         ];
       dev-pkgs =
-        p: with p; [
+        p: py: with py; [
           matplotlib
           python-lsp-server
         ];
-      lookup-pkg-sets = ps: p: builtins.concatMap (f: f p) ps;
+      lookup-pkg-sets =
+        ps: p: py:
+        builtins.concatMap (f: f p py) ps;
     in
     {
       lib.with-pkgs =
@@ -61,7 +77,7 @@
         # };
         pkgs.stdenv.mkDerivation {
           inherit pname version src;
-          propagatedBuildInputs = lookup-pkg-sets [ default-pkgs ] pypkgs;
+          propagatedBuildInputs = lookup-pkg-sets [ default-pkgs ] pkgs pypkgs;
           buildPhase = ":";
           installPhase = ''
             mkdir -p $out/${pypkgs.python.sitePackages}
@@ -74,7 +90,7 @@
       let
         pkgs = import nixpkgs { inherit system; };
         pypkgs = pkgs.python311Packages;
-        python-with = ps: "${pypkgs.python.withPackages (lookup-pkg-sets ps)}/bin/python";
+        python-with = ps: "${pypkgs.python.withPackages (lookup-pkg-sets ps pkgs)}/bin/python";
       in
       {
         packages.ci =
@@ -120,7 +136,7 @@
               check-pkgs
               ci-pkgs
               dev-pkgs
-            ] pypkgs
+            ] pkgs pypkgs
           )
           # ++ (with pkgs; [ poetry ])
           ;

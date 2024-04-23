@@ -1,6 +1,6 @@
 from jax_attn import attention, project_output, qkv, salience_map, split_heads
-from jax_attn.jit import jit
 
+from check_and_compile import check_and_compile
 from beartype.typing import NamedTuple
 from jax import nn as jnn, numpy as jnp, random as jrnd
 from jaxtyping import Array, Float32, Float64
@@ -31,7 +31,7 @@ def check_shapes(p: Parameters):
     assert p.output.shape == (hd, d_v, embedding), f"{p.output.shape} =/= {(hd, d_v, embedding)}"
 
 
-@jit(2)
+@check_and_compile(2)
 def run(
     params: Parameters,
     tokens: Float32[Array, "*batch seq embedding"],

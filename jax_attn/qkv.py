@@ -1,5 +1,4 @@
-from jax_attn.jit import jit
-
+from check_and_compile import check_and_compile
 from jax import nn as jnn, numpy as jnp, random as jrnd
 from jaxtyping import Array, Float32, Float64
 
@@ -8,7 +7,7 @@ def init(key: Array, embedding: int, d_model: int) -> Float64[Array, "3 embeddin
     return jnn.initializers.he_normal()(key, [3, embedding, d_model], dtype=jnp.float64)
 
 
-@jit()
+@check_and_compile()
 def qkv(
     params: Float64[Array, "3 embedding d_model"],
     tokens: Float32[Array, "*batch seq embedding"],

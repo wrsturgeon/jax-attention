@@ -1,5 +1,4 @@
-from jax_attn.jit import jit
-
+from check_and_compile import check_and_compile
 from beartype.typing import NamedTuple, Optional, Tuple
 from jax import nn as jnn, numpy as jnp, random as jrnd
 from jaxtyping import Array, Float32, Float64
@@ -34,7 +33,7 @@ def check_shapes(p: Parameters, d_model: int) -> Tuple[int, int, int]:
     return heads, d_k, d_v
 
 
-@jit()
+@check_and_compile()
 def split_heads(
     params: Parameters,
     qkv: Float32[Array, "3 *batch seq d_model"],

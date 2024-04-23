@@ -1,11 +1,11 @@
-from jax_attn.jit import jit
 from jax_attn.mask import mask
 
+from check_and_compile import check_and_compile
 from jax import nn as jnn, numpy as jnp
 from jaxtyping import Array, Bool, Float32
 
 
-@jit(2)
+@check_and_compile(2)
 def salience_map(
     q: Float32[Array, "*batch head seq d_k"],
     k: Float32[Array, "*batch head seq d_k"],

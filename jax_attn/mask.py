@@ -1,11 +1,10 @@
-from jax_attn.jit import jit
-
+from check_and_compile import check_and_compile
 from beartype.typing import Tuple
 from jax import numpy as jnp
 from jaxtyping import Array, Bool, Int
 
 
-@jit(0)
+@check_and_compile(0)
 def mask(shape: Tuple) -> Bool[Array, "... n n"]:
     """
     Prevents early tokens in a sequence from being influenced by later tokens.

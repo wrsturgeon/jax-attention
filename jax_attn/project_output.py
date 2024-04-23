@@ -1,5 +1,4 @@
-from jax_attn.jit import jit
-
+from check_and_compile import check_and_compile
 from jax import nn as jnn, numpy as jnp, random as jrnd
 from jaxtyping import Array, Float32, Float64
 
@@ -8,7 +7,7 @@ def init(key: Array, heads: int, d_v: int, embedding: int) -> Float64[Array, "he
     return jnn.initializers.he_normal()(key, [heads, d_v, embedding], dtype=jnp.float64)
 
 
-@jit()
+@check_and_compile()
 def project_output(
     params: Float64[Array, "head d_v embedding"],
     tokens: Float32[Array, "*batch head seq d_v"],

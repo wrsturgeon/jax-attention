@@ -7,16 +7,17 @@ You can see below how to initialize, run, and train the module, all in pure JAX.
 # Toy task: given a list of numbers, learn that your attention output should be the sum of all previous numbers.
 # The system does not appear to be good at learning this (at all), but this should be educational for you!
 
-import jax_attn
-from jax_attn.jit import jit
 
+import jax_attn
+
+from check_and_compile import check_and_compile
 from jax import numpy as jnp, random as jrnd, value_and_grad
 from jax.tree_util import tree_map
 from jaxtyping import Float32, Array
 import numpy as np
 
 
-@jit()
+@check_and_compile()
 def ground_truth(
     x: Float32[Array, "*batch seq embedding"]
 ) -> Float32[Array, "*batch seq embedding"]:
@@ -31,7 +32,7 @@ def ground_truth(
     return y
 
 
-@jit(2)
+@check_and_compile(2)
 def loss(
     params: jax_attn.Parameters,
     tokens: Float32[Array, "*batch seq embedding"],

@@ -1,10 +1,9 @@
-from jax_attn.jit import jit
-
+from check_and_compile import check_and_compile
 from jax import nn as jnn, numpy as jnp
 from jaxtyping import Array, Float32
 
 
-@jit()
+@check_and_compile()
 def attention(
     salience: Float32[Array, "*batch head seq seq"],
     values: Float32[Array, "*batch head seq d_v"],
