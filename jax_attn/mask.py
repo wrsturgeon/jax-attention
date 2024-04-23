@@ -14,11 +14,11 @@ def mask(shape: Tuple) -> Bool[Array, "... n n"]:
     we want to mask everything whose column index is greater than its row index.
     Visually, this looks like the following matrix:
     ```
+    [ 0 1 1 1 1 ... ]
+    [ 0 0 1 1 1 ... ]
+    [ 0 0 0 1 1 ... ]
+    [ 0 0 0 0 1 ... ]
     [ 0 0 0 0 0 ... ]
-    [ 1 0 0 0 0 ... ]
-    [ 1 1 0 0 0 ... ]
-    [ 1 1 1 0 0 ... ]
-    [ 1 1 1 1 0 ... ]
     [ : : : : : ... ]
     ```
     where 1 means "mask" and 0 means "pass through."
@@ -37,8 +37,8 @@ def mask(shape: Tuple) -> Bool[Array, "... n n"]:
     row: Int[Array, "1 n"] = rng[jnp.newaxis]
     col: Int[Array, "n 1"] = rng[:, jnp.newaxis]
 
-    # Compare these, effectively computing "is this below the diagonal?"
-    cmp: Bool[Array, "n n"] = row < col
+    # Compare these, effectively computing "is this above the diagonal?"
+    cmp: Bool[Array, "n n"] = row > col
 
     # Expand this to have the same `ndim` as `shape`:
     expanded: Bool[Array, "... n n"] = cmp.reshape(*[1 for _ in shape[:-2]], n, n)
