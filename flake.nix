@@ -4,6 +4,7 @@
     check-and-compile = {
       inputs = {
         flake-utils.follows = "flake-utils";
+        nixfmt.follows = "nixfmt";
         nixpkgs.follows = "nixpkgs";
       };
       url = "github:wrsturgeon/check-and-compile";
