@@ -20,11 +20,11 @@ def init(key: Array, embedding: int, d_model: int, heads: int, d_k: int, d_v: in
     )
 
 
-def check_shapes(p: Parameters):
+def check_shapes(p: Parameters, embedding: int):
     assert p.qkv.ndim == 3, f"{p.qkv.ndim} =/= {3}"
     assert p.output.ndim == 3, f"{p.output.ndim} =/= {3}"
 
-    _, embedding, d_model = p.qkv.shape
+    d_model = p.qkv.shape[-1]
     assert p.qkv.shape == (3, embedding, d_model), f"{p.qkv.shape} =/= {(3, embedding, d_model)}"
 
     hd, d_k, d_v = split_heads.check_shapes(p.heads, d_model=d_model)
@@ -43,7 +43,7 @@ def run(
     """
 
     # Check parameter shapes:
-    check_shapes(params)
+    check_shapes(params, embedding=tokens.shape[-1])
 
     # Project tokens into queries, keys, and values:
     q_k_v: Float32[Array, "3 *batch seq d_model"] = qkv.qkv(params.qkv, tokens)

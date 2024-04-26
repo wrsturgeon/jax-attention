@@ -82,7 +82,7 @@ def test_run():
 
     key = jrnd.PRNGKey(42)
     p = jax_attn.init(key, embedding=2, d_model=3, heads=5, d_k=7, d_v=11)
-    jax_attn.check_shapes(p)
+    jax_attn.check_shapes(p, embedding=2)
 
     t = jnp.arange(17 * 2).astype(jnp.float32).reshape(17, 2)
     jax_attn.run(p, t, False)
@@ -167,7 +167,7 @@ def test_batched_run():
 
     key = jrnd.PRNGKey(42)
     p = jax_attn.init(key, embedding=2, d_model=3, heads=5, d_k=7, d_v=11)
-    jax_attn.check_shapes(p)
+    jax_attn.check_shapes(p, embedding=2)
 
     t = jnp.arange(13 * 17 * 2).astype(jnp.float32).reshape(13, 17, 2)
     jax_attn.run(p, t, False)

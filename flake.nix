@@ -9,12 +9,17 @@
       url = "github:wrsturgeon/check-and-compile";
     };
     flake-utils.url = "github:numtide/flake-utils";
+    nixfmt = {
+      inputs.flake-utils.follows = "flake-utils";
+      url = "github:serokell/nixfmt";
+    };
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
   outputs =
     {
       check-and-compile,
       flake-utils,
+      nixfmt,
       nixpkgs,
       self,
     }:
@@ -90,6 +95,10 @@
               check-pkgs
               ci-pkgs
             ];
+            find = "${pkgs.findutils}/bin/find";
+            nixfmt-bin = "${nixfmt.packages.${system}.default}/bin/nixfmt";
+            rm = "${pkgs.coreutils}/bin/rm";
+            xargs = "${pkgs.findutils}/bin/xargs";
             exec = ''
               #!${pkgs.bash}/bin/bash
 
@@ -97,6 +106,8 @@
 
               export JAX_ENABLE_X64=1
 
+              ${rm} -fr result
+              ${find} . -name '*.nix' | ${xargs} ${nixfmt-bin} --check
               ${python} -m black --line-length=100 --check .
               ${python} -m mypy .
 
