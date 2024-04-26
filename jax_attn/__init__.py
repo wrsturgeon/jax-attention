@@ -31,10 +31,12 @@ def check_shapes(p: Parameters, embedding: int):
     assert p.output.shape == (hd, d_v, embedding), f"{p.output.shape} =/= {(hd, d_v, embedding)}"
 
 
-@check_and_compile(2, 3)
+@check_and_compile(4, 5)
 def run(
     params: Parameters,
-    tokens: Float32[Array, "*batch seq embedding"],
+    q_tokens: Float32[Array, "*batch seq embedding"],
+    k_tokens: Float32[Array, "*batch seq embedding"],
+    v_tokens: Float32[Array, "*batch seq embedding"],
     causal_mask: bool,
     activation: Callable = lambda x: jnn.softmax(x, axis=-1),
 ) -> Float32[Array, "*batch seq embedding"]:
@@ -43,13 +45,23 @@ def run(
     """
 
     # Check parameter shapes:
-    check_shapes(params, embedding=tokens.shape[-1])
+    check_shapes(params, embedding=q_tokens.shape[-1])
 
     # Project tokens into queries, keys, and values:
-    q_k_v: Float32[Array, "3 *batch seq d_model"] = qkv.qkv(params.qkv, tokens)
+    q, k, v = qkv.qkv(
+        params.qkv,
+        q_tokens,
+        k_tokens,
+        v_tokens,
+    )
+    # : (
+    #     Float32[Array, "*batch seq d_model"],
+    #     Float32[Array, "*batch seq d_model"],
+    #     Float32[Array, "*batch seq d_model"],
+    #   )
 
     # Project those queries, keys, and values into separate ones for multiple independent "heads":
-    q, k, v = split_heads.split_heads(params.heads, q_k_v)
+    q, k, v = split_heads.split_heads(params.heads, q, k, v)
     # : (
     #     Float32[Array, "*batch head seq d_k"],
     #     Float32[Array, "*batch head seq d_k"],

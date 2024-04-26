@@ -36,7 +36,9 @@ def check_shapes(p: Parameters, d_model: int) -> Tuple[int, int, int]:
 @check_and_compile()
 def split_heads(
     params: Parameters,
-    qkv: Float32[Array, "3 *batch seq d_model"],
+    q: Float32[Array, "*batch seq d_model"],
+    k: Float32[Array, "*batch seq d_model"],
+    v: Float32[Array, "*batch seq d_model"],
 ) -> Tuple[
     Float32[Array, "*batch head seq d_k"],
     Float32[Array, "*batch head seq d_k"],
@@ -47,10 +49,7 @@ def split_heads(
     """
 
     # Check parameter shapes:
-    check_shapes(params, qkv.shape[-1])
-
-    # Split `qkv` into Q, K, and V matrices:
-    q, k, v = qkv  # : Float32[Array, "*batch seq d_model"]
+    check_shapes(params, q.shape[-1])
 
     w_q: Float32[Array, "head d_model d_k"] = params.w_q.astype(jnp.float32)
     w_k: Float32[Array, "head d_model d_k"] = params.w_k.astype(jnp.float32)

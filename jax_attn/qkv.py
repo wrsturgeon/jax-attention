@@ -1,3 +1,4 @@
+from beartype.typing import Tuple
 from check_and_compile import check_and_compile
 from jax import nn as jnn, numpy as jnp, random as jrnd
 from jaxtyping import Array, Float32, Float64
@@ -10,8 +11,14 @@ def init(key: Array, embedding: int, d_model: int) -> Float64[Array, "3 embeddin
 @check_and_compile()
 def qkv(
     params: Float64[Array, "3 embedding d_model"],
-    tokens: Float32[Array, "*batch seq embedding"],
-) -> Float32[Array, "3 *batch seq d_model"]:
+    q_tokens: Float32[Array, "*batch seq embedding"],
+    k_tokens: Float32[Array, "*batch seq embedding"],
+    v_tokens: Float32[Array, "*batch seq embedding"],
+) -> Tuple[
+    Float32[Array, "*batch seq d_model"],
+    Float32[Array, "*batch seq d_model"],
+    Float32[Array, "*batch seq d_model"],
+]:
     """
     Learn to project a series of token embeddings into three matrices:
     - Q, for "query"
@@ -19,21 +26,10 @@ def qkv(
     - V, for "values"
     """
 
-    # Effectively, we're doing a faster version of this:
-    #
-    # WQ, WK, WV = params
-    #
-    # Q = tokens @ WQ
-    # K = tokens @ WK
-    # V = tokens @ WV
-    #
-    # return jnp.stack(Q, K, V)
+    w_q, w_k, w_v = params.astype(jnp.float32)
 
-    # Change `dtype` of `params` when we don't need precision updates:
-    p: Float64[Array, "3 embedding d_model"] = params.astype(jnp.float32)
+    q = q_tokens @ w_q
+    k = k_tokens @ w_k
+    v = v_tokens @ w_v
 
-    # Matrix-multiply *only* the last two axes:
-    # - `s` is `seq`
-    # - `e` is `embedding`
-    # - `m` is `d_model`
-    return jnp.einsum("... s e, 3 e m -> 3 ... s m", tokens, p)
+    return q, k, v

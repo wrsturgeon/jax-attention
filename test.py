@@ -33,7 +33,7 @@ def test_qkv():
     key = jrnd.PRNGKey(42)
     p = qkv.init(key, embedding=5, d_model=2)
     t = jnp.arange(7 * 5).astype(jnp.float32).reshape(7, 5)
-    qkv.qkv(p, t)
+    qkv.qkv(p, t, t + 1, t + 2)
 
 
 def test_split_heads():
@@ -43,8 +43,8 @@ def test_split_heads():
     p = split_heads.init(key, heads=3, d_model=2, d_k=5, d_v=7)
     split_heads.check_shapes(p, d_model=2)
 
-    qkv = jnp.arange(3 * 11 * 2).astype(jnp.float32).reshape(3, 11, 2)
-    split_heads.split_heads(p, qkv)
+    q, k, v = jnp.arange(3 * 11 * 2).astype(jnp.float32).reshape(3, 11, 2)
+    split_heads.split_heads(p, q, k, v)
 
 
 def test_salience_map():
@@ -85,8 +85,8 @@ def test_run():
     jax_attn.check_shapes(p, embedding=2)
 
     t = jnp.arange(17 * 2).astype(jnp.float32).reshape(17, 2)
-    jax_attn.run(p, t, False)
-    jax_attn.run(p, t, True)
+    jax_attn.run(p, t, t + 1, t + 2, False)
+    jax_attn.run(p, t, t + 1, t + 2, True)
 
 
 # %%%%%%%%%%%%%%%% Batched:
@@ -118,7 +118,7 @@ def test_batched_qkv():
     key = jrnd.PRNGKey(42)
     p = qkv.init(key, embedding=5, d_model=2)
     t = jnp.arange(11 * 7 * 5).astype(jnp.float32).reshape(11, 7, 5)
-    qkv.qkv(p, t)
+    qkv.qkv(p, t, t + 1, t + 2)
 
 
 def test_batched_split_heads():
@@ -128,8 +128,8 @@ def test_batched_split_heads():
     p = split_heads.init(key, heads=3, d_model=2, d_k=5, d_v=7)
     split_heads.check_shapes(p, d_model=2)
 
-    qkv = jnp.arange(3 * 11 * 13 * 2).astype(jnp.float32).reshape(3, 11, 13, 2)
-    split_heads.split_heads(p, qkv)
+    q, k, v = jnp.arange(3 * 11 * 13 * 2).astype(jnp.float32).reshape(3, 11, 13, 2)
+    split_heads.split_heads(p, q, k, v)
 
 
 def test_batched_salience_map():
@@ -170,5 +170,5 @@ def test_batched_run():
     jax_attn.check_shapes(p, embedding=2)
 
     t = jnp.arange(13 * 17 * 2).astype(jnp.float32).reshape(13, 17, 2)
-    jax_attn.run(p, t, False)
-    jax_attn.run(p, t, True)
+    jax_attn.run(p, t, t + 1, t + 2, False)
+    jax_attn.run(p, t, t + 1, t + 2, True)
