@@ -87,47 +87,47 @@
         python-with = ps: "${pypkgs.python.withPackages (lookup-pkg-sets ps pkgs)}/bin/python";
       in
       {
-        packages.ci =
-          let
-            pname = "ci";
-            python = python-with [
-              default-pkgs
-              check-pkgs
-              ci-pkgs
-            ];
-            find = "${pkgs.findutils}/bin/find";
-            nixfmt-bin = "${nixfmt.packages.${system}.default}/bin/nixfmt";
-            rm = "${pkgs.coreutils}/bin/rm";
-            xargs = "${pkgs.findutils}/bin/xargs";
-            exec = ''
-              #!${pkgs.bash}/bin/bash
+        apps.ci = {
+          type = "app";
+          program = "${
+            let
+              pname = "ci";
+              python = python-with [
+                default-pkgs
+                check-pkgs
+                ci-pkgs
+              ];
+              find = "${pkgs.findutils}/bin/find";
+              nixfmt-bin = "${nixfmt.packages.${system}.default}/bin/nixfmt";
+              rm = "${pkgs.coreutils}/bin/rm";
+              xargs = "${pkgs.findutils}/bin/xargs";
+              exec = ''
+                #!${pkgs.bash}/bin/bash
 
-              set -eu
+                set -eu
 
-              export JAX_ENABLE_X64=1
+                export JAX_ENABLE_X64=1
 
-              ${rm} -fr result
-              ${find} . -name '*.nix' | ${xargs} ${nixfmt-bin} --check
-              ${python} -m black --line-length=100 --check .
-              ${python} -m mypy .
+                ${rm} -fr result
+                ${find} . -name '*.nix' | ${xargs} ${nixfmt-bin} --check
+                ${python} -m black --line-length=100 --check .
+                ${python} -m mypy .
 
-              ${python} -m coverage run --omit='/nix/*' -m pytest -Werror test.py
-              ${python} -m coverage report -m --fail-under=100
-            '';
-          in
-          pkgs.stdenv.mkDerivation {
-            inherit pname version src;
-            buildPhase = ":";
-            installPhase = ''
-              mkdir -p $out/${pypkgs.python.sitePackages}
-              mv ./${pyname} $out/${pypkgs.python.sitePackages}/${pyname}
-              mv ./test.py $out/test.py
-
-              mkdir -p $out/bin
-              echo "${exec}" > $out/bin/${pname}
-              chmod +x $out/bin/${pname}
-            '';
-          };
+                ${python} -m coverage run --omit='/nix/*' -m pytest -Werror test.py
+                ${python} -m coverage report -m --fail-under=100
+              '';
+            in
+            pkgs.stdenv.mkDerivation {
+              inherit pname version src;
+              buildPhase = ":";
+              installPhase = ''
+                mkdir -p $out/bin
+                echo "${exec}" > $out/bin/${pname}
+                chmod +x $out/bin/${pname}
+              '';
+            }
+          }/bin/ci";
+        };
         devShells.default = pkgs.mkShell {
           JAX_ENABLE_X64 = "1";
           packages = (
