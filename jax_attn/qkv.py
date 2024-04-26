@@ -11,13 +11,13 @@ def init(key: Array, embedding: int, d_model: int) -> Float64[Array, "3 embeddin
 @check_and_compile()
 def qkv(
     params: Float64[Array, "3 embedding d_model"],
-    q_tokens: Float32[Array, "*batch seq embedding"],
-    k_tokens: Float32[Array, "*batch seq embedding"],
-    v_tokens: Float32[Array, "*batch seq embedding"],
+    q_tokens: Float32[Array, "*batch seq_q embedding"],
+    k_tokens: Float32[Array, "*batch seq_k embedding"],
+    v_tokens: Float32[Array, "*batch seq_k embedding"],
 ) -> Tuple[
-    Float32[Array, "*batch seq d_model"],
-    Float32[Array, "*batch seq d_model"],
-    Float32[Array, "*batch seq d_model"],
+    Float32[Array, "*batch seq_q d_model"],
+    Float32[Array, "*batch seq_k d_model"],
+    Float32[Array, "*batch seq_k d_model"],
 ]:
     """
     Learn to project a series of token embeddings into three matrices:

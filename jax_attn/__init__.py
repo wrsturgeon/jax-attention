@@ -9,7 +9,7 @@ from jaxtyping import Array, Float32, Float64
 class Parameters(NamedTuple):
     qkv: Float64[Array, "3 embedding d_model"]
     heads: split_heads.Parameters
-    output: Float64[Array, "heads dv embedding"]
+    output: Float64[Array, "heads d_v embedding"]
 
 
 def init(key: Array, embedding: int, d_model: int, heads: int, d_k: int, d_v: int) -> Parameters:
@@ -34,12 +34,12 @@ def check_shapes(p: Parameters, embedding: int):
 @check_and_compile(4, 5)
 def run(
     params: Parameters,
-    q_tokens: Float32[Array, "*batch seq embedding"],
-    k_tokens: Float32[Array, "*batch seq embedding"],
-    v_tokens: Float32[Array, "*batch seq embedding"],
+    q_tokens: Float32[Array, "*batch seq_q embedding"],
+    k_tokens: Float32[Array, "*batch seq_k embedding"],
+    v_tokens: Float32[Array, "*batch seq_k embedding"],
     causal_mask: bool,
     activation: Callable = lambda x: jnn.softmax(x, axis=-1),
-) -> Float32[Array, "*batch seq embedding"]:
+) -> Float32[Array, "*batch seq_q embedding"]:
     """
     A full attention block, batteries included.
     """
@@ -55,26 +55,26 @@ def run(
         v_tokens,
     )
     # : (
-    #     Float32[Array, "*batch seq d_model"],
-    #     Float32[Array, "*batch seq d_model"],
-    #     Float32[Array, "*batch seq d_model"],
+    #     Float32[Array, "*batch seq_q d_model"],
+    #     Float32[Array, "*batch seq_k d_model"],
+    #     Float32[Array, "*batch seq_k d_model"],
     #   )
 
     # Project those queries, keys, and values into separate ones for multiple independent "heads":
     q, k, v = split_heads.split_heads(params.heads, q, k, v)
     # : (
-    #     Float32[Array, "*batch head seq d_k"],
-    #     Float32[Array, "*batch head seq d_k"],
-    #     Float32[Array, "*batch head seq d_v"],
+    #     Float32[Array, "*batch head seq_q d_k"],
+    #     Float32[Array, "*batch head seq_k d_k"],
+    #     Float32[Array, "*batch head seq_k d_v"],
     #   )
 
     # For each token, compute a salience map based on its queries and other tokens' keys:
-    salience: Float32[Array, "*batch head seq seq"] = salience_map.salience_map(
+    salience: Float32[Array, "*batch head seq_q seq_k"] = salience_map.salience_map(
         q, k, causal_mask, activation
     )
 
     # Weight our update values by their salience to each token:
-    attn: Float32[Array, "*batch head seq d_v"] = attention.attention(salience, v)
+    attn: Float32[Array, "*batch head seq_q d_v"] = attention.attention(salience, v)
 
     # Project those updates back to the original data's shape:
     return project_output.project_output(params.output, attn)

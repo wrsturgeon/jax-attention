@@ -36,13 +36,13 @@ def check_shapes(p: Parameters, d_model: int) -> Tuple[int, int, int]:
 @check_and_compile()
 def split_heads(
     params: Parameters,
-    q: Float32[Array, "*batch seq d_model"],
-    k: Float32[Array, "*batch seq d_model"],
-    v: Float32[Array, "*batch seq d_model"],
+    q: Float32[Array, "*batch seq_q d_model"],
+    k: Float32[Array, "*batch seq_k d_model"],
+    v: Float32[Array, "*batch seq_k d_model"],
 ) -> Tuple[
-    Float32[Array, "*batch head seq d_k"],
-    Float32[Array, "*batch head seq d_k"],
-    Float32[Array, "*batch head seq d_v"],
+    Float32[Array, "*batch head seq_q d_k"],
+    Float32[Array, "*batch head seq_k d_k"],
+    Float32[Array, "*batch head seq_k d_v"],
 ]:
     """
     Project Q/K/V matrices into inputs for separate "heads" paying attention to different things.
@@ -56,8 +56,8 @@ def split_heads(
     w_v: Float32[Array, "head d_model d_v"] = params.w_v.astype(jnp.float32)
 
     # Matrix-multiply each separately, since they have different shapes:
-    q_h: Float32[Array, "*batch head seq d_k"] = jnp.einsum("... s m, h m d -> ... h s d", q, w_q)
-    k_h: Float32[Array, "*batch head seq d_k"] = jnp.einsum("... s m, h m d -> ... h s d", k, w_k)
-    v_h: Float32[Array, "*batch head seq d_v"] = jnp.einsum("... s m, h m d -> ... h s d", v, w_v)
+    q_h: Float32[Array, "*batch head seq_q d_k"] = jnp.einsum("... s m, h m d -> ... h s d", q, w_q)
+    k_h: Float32[Array, "*batch head seq_k d_k"] = jnp.einsum("... s m, h m d -> ... h s d", k, w_k)
+    v_h: Float32[Array, "*batch head seq_k d_v"] = jnp.einsum("... s m, h m d -> ... h s d", v, w_v)
 
     return q_h, k_h, v_h

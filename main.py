@@ -19,8 +19,8 @@ import numpy as np
 
 @check_and_compile()
 def ground_truth(
-    x: Float32[Array, "*batch seq embedding"]
-) -> Float32[Array, "*batch seq embedding"]:
+    x: Float32[Array, "*batch seq_q embedding"]
+) -> Float32[Array, "*batch seq_q embedding"]:
     y = jnp.zeros_like(x)
 
     # This is certainly not the best way to do this,
@@ -35,11 +35,14 @@ def ground_truth(
 @check_and_compile(2)
 def loss(
     params: jax_attn.Parameters,
-    tokens: Float32[Array, "*batch seq embedding"],
+    q_tokens: Float32[Array, "*batch seq_q embedding"],
+    k_tokens: Float32[Array, "*batch seq_k embedding"],
     causal_mask: bool,
 ) -> Float32[Array, ""]:
-    y_ideal: Float32[Array, "*batch seq embedding"] = tokens  # ground_truth(tokens)
-    y: Float32[Array, "*batch seq embedding"] = jax_attn.run(params, tokens, causal_mask)
+    y_ideal: Float32[Array, "*batch seq_q embedding"] = q_tokens  # ground_truth(q_tokens)
+    y: Float32[Array, "*batch seq_q embedding"] = jax_attn.run(
+        params, q_tokens, k_tokens, k_tokens + 1, causal_mask
+    )
     return jnp.mean(jnp.square(y - y_ideal))
 
 
@@ -50,7 +53,8 @@ d_model = 3
 heads = 1
 d_k = 5
 d_v = 7
-seq = 11
+seq_q = 11
+seq_k = 13
 lr = 0.25  # Loss averages every dimension, so this will be way higher than if it were a sum
 training_steps = 10000
 
@@ -79,9 +83,10 @@ params = jax_attn.Parameters(
 # Training loop:
 for i in range(training_steps):
     key, k = jrnd.split(key)
-    tokens = jrnd.normal(k, [batch, seq, embedding], dtype=jnp.float32)
+    q_tokens = jrnd.normal(k, [batch, seq_q, embedding], dtype=jnp.float32)
+    k_tokens = jrnd.normal(k, [batch, seq_k, embedding], dtype=jnp.float32)
 
-    L, dLdp = value_and_grad(loss)(params, tokens, True)
+    L, dLdp = value_and_grad(loss)(params, q_tokens, k_tokens, True)
     losses[i] = L
     print(f"Loss: {L}")
 

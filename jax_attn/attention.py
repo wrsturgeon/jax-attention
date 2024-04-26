@@ -5,11 +5,11 @@ from jaxtyping import Array, Float32
 
 @check_and_compile()
 def attention(
-    salience: Float32[Array, "*batch head seq seq"],
-    values: Float32[Array, "*batch head seq d_v"],
-) -> Float32[Array, "*batch head seq d_v"]:
+    salience: Float32[Array, "*batch head seq_q seq_k"],
+    values: Float32[Array, "*batch head seq_k d_v"],
+) -> Float32[Array, "*batch head seq_q d_v"]:
     """
     Given a salience map and update values, weight the update values according to salience.
     """
 
-    return jnp.einsum("... h s s, ... h s d -> ... h s d", salience, values)
+    return salience @ values
