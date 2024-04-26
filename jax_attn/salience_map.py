@@ -30,7 +30,9 @@ def salience_map(
 
     # If we want a causal mask, add it:
     logits: Float32[Array, "*batch head seq seq"] = (
-        jnp.where(mask(unmasked.shape), -jnp.inf, unmasked) if causal_mask else unmasked
+        jnp.where(mask(unmasked.shape), jnp.finfo(unmasked.dtype).min, unmasked)
+        if causal_mask
+        else unmasked
     )
 
     # Convert rows into probability distributions:
