@@ -13,11 +13,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1714171506,
-        "narHash": "sha256-x+LZT16JTmbxV+OdfOAgJp5Ld/caiUDWBdktVRR+t2I=",
+        "lastModified": 1714285078,
+        "narHash": "sha256-i38sNkza+gIkS7n0gBj0sZnz4xVXaPl+VThcUrZv8Jc=",
         "owner": "wrsturgeon",
         "repo": "check-and-compile",
-        "rev": "e8c17775bbd7c85db9955bfbe409320022440b9c",
+        "rev": "859b8d5e9ceea0e7855784f563d614fe6c4ffbc8",
         "type": "github"
       },
       "original": {
